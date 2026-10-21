@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const supabase = createClient();
 
   const router = useRouter();
@@ -16,9 +17,14 @@ export default function LoginPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         router.push("/dashboard"); // Or redirect to your dashboard/home page
+      } else {
+        setCheckingAuth(false);
       }
     });
   }, [router, supabase]);
+  if (checkingAuth) {
+    return <div className="min-h-screen" />;
+  }
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -23,8 +23,10 @@
     "@fastify/multipart": "^10.1.4",
     "@supabase/supabase-js": "^2.118.0",
     "dotenv": "^18.0.8",
+    "execa": "^10.2.0",
     "fastify": "^5.12.7",
-    "resend": "^6.34.1"
+    "resend": "^6.34.1",
+    "yt-dlp-exec": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
