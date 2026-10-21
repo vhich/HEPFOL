@@ -1,5 +1,6 @@
 "use client";
 
+import LogoutButton from "@/components/LogoutButton";
 import { createClient } from "@/lib/supabase";
 import {
   ArrowRight,
@@ -252,6 +253,7 @@ export default function CreatePage() {
       {/* Top navigation */}
       <header className="h-[72px] border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-8">
+          <LogoutButton />
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
               <Sparkles className="h-5 w-5 text-white" />
