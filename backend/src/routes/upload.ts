@@ -6,7 +6,7 @@ import fs from "fs/promises"; // Switched to non-blocking promise-based FS
 import os from "os"; // Cross-platform OS path tracking
 import path from "path";
 import { pipeline } from "stream/promises";
-import { checkAuthorization, verifiedUser } from "../lib/authorization";
+import { verifiedUser } from "../lib/authorization";
 import { supabase } from "../lib/supabase";
 import { MAX_DURATION } from "../server";
 
@@ -21,12 +21,12 @@ const uploadJobs = new Map<
       | "converting"
       | "hashing"
       | "completed"
+      | "Duplicate"
       | "failed";
     progressMessage: string;
     createdAt: number; // Added to facilitate memory pruning
     result?: {
       projectId: string;
-      filePath: string;
       duplicate: boolean;
       durationSeconds: number;
       title: string;
@@ -55,8 +55,7 @@ export async function uploadRoutes(server: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         // 1. Security Check: Bearer Token Auth
-        checkAuthorization(request, reply);
-        const user = await verifiedUser(request);
+        const user = await verifiedUser(request, reply);
 
         const data = await request.file();
         if (!data) {
@@ -100,6 +99,15 @@ export async function uploadRoutes(server: FastifyInstance) {
         const writeStream = createWriteStream(tempUploadPath);
         await pipeline(data.file, writeStream);
 
+        if (data.file.truncated) {
+          await fs.unlink(tempUploadPath).catch(() => {});
+          return reply.code(413).send({
+            success: false,
+            error:
+              "File upload size exceeded the maximum allowed limit of 30MB.",
+          });
+        }
+
         const jobId = crypto.randomBytes(12).toString("hex");
         uploadJobs.set(jobId, {
           status: "queued",
@@ -131,6 +139,27 @@ export async function uploadRoutes(server: FastifyInstance) {
 
               await fs.unlink(tempUploadPath).catch(() => {});
 
+              const { data: existingProject } = await supabase
+                .from("projects")
+                .select("user_id")
+                .eq("media_hash", fileHash)
+                .maybeSingle();
+
+              if (existingProject) {
+                uploadJobs.set(jobId, {
+                  status: "completed",
+                  progressMessage: "Duplicate media detected!",
+                  createdAt: Date.now(),
+                  result: {
+                    projectId: existingProject.user_id,
+                    duplicate: true,
+                    durationSeconds: 0,
+                    title: filename,
+                  },
+                });
+                return;
+              }
+
               uploadedStoragePath = `uploads/${user?.id}/${Date.now()}-${filename}`;
 
               const { error: storageError } = await supabase.storage
@@ -144,7 +173,7 @@ export async function uploadRoutes(server: FastifyInstance) {
                 .insert({
                   user_id: user?.id,
                   media_hash: fileHash,
-                  source_url: uploadedStoragePath + ` | Title: ${filename}`,
+                  source_url: uploadedStoragePath + ` | name: ${filename}`,
                   status: "uploaded",
                 })
                 .select("id")
@@ -164,7 +193,6 @@ export async function uploadRoutes(server: FastifyInstance) {
                 createdAt: Date.now(),
                 result: {
                   projectId: newProject.id,
-                  filePath: uploadedStoragePath,
                   duplicate: false,
                   durationSeconds: 0,
                   title: filename,
@@ -243,7 +271,7 @@ export async function uploadRoutes(server: FastifyInstance) {
             // Check duplicate in Supabase
             const { data: existingProject } = await supabase
               .from("projects")
-              .select("id, storage_path")
+              .select("user_id")
               .eq("media_hash", fileHash)
               .maybeSingle();
 
@@ -253,8 +281,7 @@ export async function uploadRoutes(server: FastifyInstance) {
                 progressMessage: "Duplicate media detected!",
                 createdAt: Date.now(),
                 result: {
-                  projectId: existingProject.id,
-                  filePath: existingProject.storage_path,
+                  projectId: existingProject.user_id,
                   duplicate: true,
                   durationSeconds,
                   title: filename,
@@ -298,7 +325,6 @@ export async function uploadRoutes(server: FastifyInstance) {
               createdAt: Date.now(),
               result: {
                 projectId: newProject.id,
-                filePath: uploadedStoragePath,
                 duplicate: false,
                 durationSeconds,
                 title: filename,

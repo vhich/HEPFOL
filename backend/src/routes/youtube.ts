@@ -4,7 +4,7 @@ import fs from "fs/promises"; // Use modern non-blocking promise-based filesyste
 import os from "os"; // Cross-platform OS path tracking
 import path from "path";
 import youtubedl from "yt-dlp-exec";
-import { checkAuthorization, verifiedUser } from "../lib/authorization";
+import { verifiedUser } from "../lib/authorization";
 import { supabase } from "../lib/supabase";
 import { MAX_DURATION } from "../server";
 
@@ -56,11 +56,6 @@ export async function youtubeRoutes(server: FastifyInstance) {
   server.post(
     "/process-youtube",
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const user = verifiedUser(request);
-      if (!user)
-        return reply
-          .code(401)
-          .send({ success: false, error: "Unauthorised user." });
       const youtubeRegex =
         /^(?:https?:)?\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_\-]{11})(?:\S+)?$/;
 
@@ -73,8 +68,6 @@ export async function youtubeRoutes(server: FastifyInstance) {
       }
 
       const jobId = crypto.randomBytes(12).toString("hex");
-
-      // Initialize job state
       jobs.set(jobId, {
         status: "queued",
         progressMessage: "Initializing extraction job...",
@@ -202,8 +195,7 @@ export async function youtubeRoutes(server: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       let targetFilePath = "";
       try {
-        checkAuthorization(request, reply);
-        const user = await verifiedUser(request);
+        const user = await verifiedUser(request, reply);
         const { extractionId } = request.body as { extractionId: string };
         const cachedData = tempAudioCache.get(extractionId);
 

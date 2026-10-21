@@ -2,7 +2,6 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
 import Fastify from "fastify";
-import { checkAuthorization } from "./lib/authorization";
 import { webhookRoutes } from "./routes/email_webhook";
 import { uploadRoutes } from "./routes/upload";
 import { youtubeRoutes } from "./routes/youtube";
@@ -20,14 +19,13 @@ await server.register(cors, {
 
 await server.register(multipart, {
   limits: {
-    fileSize: 50 * 1024 * 1024,
+    fileSize: 30 * 1024 * 1024,
   },
 });
-export const MAX_DURATION: number = 900;
+export const MAX_DURATION: number = 600;
 
 // Health check route
 server.get("/health", async (request, reply) => {
-  checkAuthorization(request, reply);
   return { status: "ok", service: "hepfol-backend" };
 });
 
