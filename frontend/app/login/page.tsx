@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const supabase = createClient();
+  const supabase = getSupabaseBrowserClient();
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,10 +20,12 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    const origin = window.location.origin; // Automatically detects http://localhost:3000 or https://hepfol-frontend.onrender.com
+
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback`,
       },
     });
   };

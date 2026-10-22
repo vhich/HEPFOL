@@ -1,7 +1,7 @@
 "use client";
 
 import LogoutButton from "@/components/LogoutButton";
-import { createClient } from "@/lib/supabase";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 import {
   ArrowRight,
   AudioLines,
@@ -76,7 +76,7 @@ export default function CreatePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const supabase = createClient();
+  const supabase = getSupabaseBrowserClient();
 
   const handleFiles = (selectedFiles: FileList | File[]) => {
     const incoming = Array.from(selectedFiles);
