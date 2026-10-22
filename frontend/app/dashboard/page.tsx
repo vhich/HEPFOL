@@ -569,7 +569,7 @@ function UrlInput({
     sizeMB: string;
   } | null>(null);
 
-  const supabase = createClient();
+  const supabase = getSupabaseBrowserClient();
 
   // --- STEP 1: Process and Extract Audio ---
   const handleProcessYouTube = async () => {
