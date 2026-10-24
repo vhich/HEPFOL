@@ -2,11 +2,19 @@ import { inlineLink } from "@/components/CheckBoxDescription";
 import { Button } from "@/components/ui/button";
 import { FieldDescription } from "@/components/ui/field";
 import { GoogleIcon } from "@/components/ui/GoogleIconSVG";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { SignupInputTypes } from "@/lib/auth_types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { Eye, EyeClosed } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 const AuthPage = ({
   children,
@@ -98,6 +106,57 @@ const AuthPage = ({
 };
 
 export default AuthPage;
+export const InputGroupDemo = ({ input }: { input: SignupInputTypes }) => {
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const pathname = usePathname();
+  const signUpPath = pathname.startsWith("/auth/signup");
+  return (
+    <InputGroup>
+      <InputGroupInput
+        id={input.id}
+        type={input.id === "password" && showPassword ? "text" : input.type}
+        value={input.value}
+        onChange={input.onchange}
+        aria-invalid={
+          signUpPath &&
+          input.value.length > 0 &&
+          input.error_mssg !== "" &&
+          true //i checked the lenght for the password field, the password error has a default error message in the signupPage
+        }
+      />
+      <InputGroupAddon align="inline-end">
+        {input.type === "password" && (
+          <>
+            {showPassword ? (
+              <InputGroupButton
+                aria-label="Show Password"
+                title="Show password"
+                size="icon-xs"
+                onClick={() => {
+                  setShowPassword(false);
+                }}
+              >
+                <EyeClosed />
+              </InputGroupButton>
+            ) : (
+              <InputGroupButton
+                aria-label="hide Password"
+                title="Hide password"
+                size="icon-xs"
+                onClick={() => {
+                  setShowPassword(true);
+                }}
+              >
+                <Eye />
+              </InputGroupButton>
+            )}
+          </>
+        )}
+      </InputGroupAddon>
+    </InputGroup>
+  );
+};
 
 export const authMainStyle = "flex min-h-screen items-center justify-center";
 export const authSectionStyle =

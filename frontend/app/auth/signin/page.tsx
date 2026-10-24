@@ -1,4 +1,5 @@
 "use client";
+import { AuthInputGroupDemo } from "@/components/AuthInputGroup";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -15,7 +16,6 @@ import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import AuthPage from "../AuthPage";
-import { InputGroupDemo } from "../signup/SignUpForm";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
@@ -79,7 +79,7 @@ const LoginPage = () => {
                 <FieldLabel htmlFor={input.id} className="capitalize">
                   {input.label}
                 </FieldLabel>
-                <InputGroupDemo input={input} />
+                <AuthInputGroupDemo input={input} />
                 <FieldDescription key={input.id}>
                   {input.error_mssg !== "" && input.error_mssg}
                 </FieldDescription>

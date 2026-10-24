@@ -1,7 +1,36 @@
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-
+import {
+  Fredoka,
+  Geist,
+  Geist_Mono,
+  Inter,
+  JetBrains_Mono,
+} from "next/font/google";
 import "../globals.css";
+
+const jetbrainsMonoHeading = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-heading",
+});
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Hepfol - Your best ideas deserve to travel further.",
@@ -17,9 +46,28 @@ export default function AuthLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("h-full", "antialiased")}
+      className={cn(
+        "h-full",
+        "antialiased",
+        fredoka.variable,
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+        inter.variable,
+        jetbrainsMonoHeading.variable,
+      )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
