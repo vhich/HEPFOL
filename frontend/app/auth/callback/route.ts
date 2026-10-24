@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
       {
         cookies: {
           getAll() {
@@ -38,7 +38,5 @@ export async function GET(request: Request) {
   }
 
   // Return the user to an error page or login if auth fails
-  return NextResponse.redirect(
-    `${origin}/login?error=Could not authenticate user`,
-  );
+  return NextResponse.redirect(`${origin}/?error=Could not authenticate user`);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import LogoutButton from "@/components/LogoutButton";
-import { getSupabaseBrowserClient } from "@/lib/supabase";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   ArrowRight,
   AudioLines,

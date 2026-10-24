@@ -1,6 +1,6 @@
 "use client";
 
-import { getSupabaseBrowserClient } from "@/lib/supabase";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
@@ -16,7 +16,7 @@ export default function LogoutButton() {
     }
 
     // Redirect to the login page and clear router cache
-    router.push("/login");
+    router.push("/");
     router.refresh();
   };
 
