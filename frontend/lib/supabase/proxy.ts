@@ -45,7 +45,8 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
-  const isDashboardPage = request.nextUrl.pathname.startsWith("/dashboard");
+  const isDashboardPage =
+    request.nextUrl.pathname.startsWith("/dashboard/home");
   const isPublicPage = request.nextUrl.pathname === "/"; // Add your public routes here
 
   // If user is NOT logged in and trying to access a protected route (like dashboard)
@@ -55,7 +56,7 @@ export async function updateSession(request: NextRequest) {
 
   // If user IS logged in and trying to access an auth page (like login/signup)
   if (user && isAuthPage) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/dashboard/home", request.url));
   }
 
   return supabaseResponse;

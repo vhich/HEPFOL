@@ -45,7 +45,7 @@ const LoginPage = () => {
         description: "Logged in successfully!",
       });
       // Redirect user to your dashboard
-      router.push("/dashboard");
+      router.push("/dashboard/home");
     }
 
     setIsSigningIn(false);

@@ -1,7 +1,15 @@
 "use client";
 
-import LogoutButton from "@/components/LogoutButton";
+import ChooseWorkflow, {
+  fadedText,
+  headingFour,
+  headingTwo,
+} from "@/components/dashboard/ChooseWorkflow";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+import NoChannelsCTA from "@/components/dashboard/NoChannelsCTA";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useDBcontext } from "@/providers/dashboardProvider";
+import { cn } from "cn";
 import {
   ArrowRight,
   AudioLines,
@@ -77,6 +85,8 @@ export default function CreatePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supabase = getSupabaseBrowserClient();
+
+  const { user } = useDBcontext();
 
   const handleFiles = (selectedFiles: FileList | File[]) => {
     const incoming = Array.from(selectedFiles);
@@ -249,266 +259,218 @@ export default function CreatePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f9fc] text-slate-900">
-      {/* Top navigation */}
-      <header className="h-[72px] border-b border-slate-200 bg-white">
-        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-8">
-          <LogoutButton />
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
-
-            <div>
-              <h1 className="text-[17px] font-bold tracking-tight">
-                Media2Social
-              </h1>
-              <p className="text-[11px] text-slate-400">
-                From Long Media → Social Impact
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <button className="text-sm text-slate-500 hover:text-slate-900">
-              Projects
-            </button>
-
-            <button className="text-sm text-slate-500 hover:text-slate-900">
-              Templates
-            </button>
-
-            <div className="h-8 w-px bg-slate-200" />
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
-                VC
-              </div>
-
-              <div className="hidden text-left sm:block">
-                <p className="text-sm font-medium">Victor Chibuihe</p>
-                <p className="text-xs text-slate-400">Pro Plan</p>
-              </div>
-
-              <ChevronDown className="h-4 w-4 text-slate-400" />
-            </div>
-          </div>
+    <DashboardShell>
+      <div className="mx-auto max-w-190 text-center">
+        <div className="mx-auto mb-4 grid place-items-center">
+          <Image
+            src={"/app_logo_icon_dark.svg"}
+            width={100}
+            height={100}
+            alt="logo icon"
+          />
         </div>
-      </header>
+        <h4 className={cn("mx-auto mt-3 max-w-162", headingFour, fadedText)}>
+          Hello {user.full_name.trim().split(" ")[0]}, welcome to Hepfol
+        </h4>
 
-      <div className="mx-auto max-w-[1200px] px-6 py-12">
-        {/* Page heading */}
-        <div className="mx-auto max-w-[760px] text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
-            <Sparkles className="h-6 w-6 text-blue-600" />
-          </div>
-
-          <h2 className="text-3xl font-bold tracking-tight text-slate-950">
-            Turn your long-form media into social content
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-[650px] text-[15px] leading-6 text-slate-500">
-            Add a YouTube video, URL, audio, video, or images. We&apos;ll
+        <h2 className={cn("mx-auto mt-3 mb-8", headingTwo)}>
+          Ready to multiply your reach? Choose your repurposing workflow
+          {/* Add a YouTube video, URL, audio, video, or images. We&apos;ll
             analyze your content and transform it into platform-ready social
-            assets.
-          </p>
+            assets. */}
+        </h2>
+        <ChooseWorkflow />
+        <NoChannelsCTA />
+      </div>
+
+      {/* Main card */}
+      <section className="mx-auto mt-10 max-w-245 rounded-3xl border border-border dark:bg-secondary bg-background p-7 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+        {/* Step indicator */}
+        <div className="mb-8 flex items-center justify-center">
+          <Step number="1" label="Add Media" active />
+          <StepConnector />
+          <Step number="2" label="Customize" />
+          <StepConnector />
+          <Step number="3" label="Generate" />
         </div>
 
-        {/* Main card */}
-        <section className="mx-auto mt-10 max-w-[980px] rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
-          {/* Step indicator */}
-          <div className="mb-8 flex items-center justify-center">
-            <Step number="1" label="Add Media" active />
-            <StepConnector />
-            <Step number="2" label="Customize" />
-            <StepConnector />
-            <Step number="3" label="Generate" />
-          </div>
+        {/* Input tabs */}
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-2 sm:grid-cols-4">
+          {inputTypes.map((item) => {
+            const Icon = item.icon;
+            const active = inputType === item.id;
 
-          {/* Input tabs */}
-          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-2 sm:grid-cols-4">
-            {inputTypes.map((item) => {
-              const Icon = item.icon;
-              const active = inputType === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleInputTypeChange(item.id)}
+                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                  active
+                    ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200"
+                    : "text-slate-500 hover:bg-white/70 hover:text-slate-900"
+                }`}
+              >
+                <Icon className="h-4.5 w-4.5" />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
 
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleInputTypeChange(item.id)}
-                  className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    active
-                      ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200"
-                      : "text-slate-500 hover:bg-white/70 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon className="h-[18px] w-4.5" />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* Input content */}
+        <div className="mt-7">
+          {inputType === "youtube" && (
+            <UrlInput type={inputType} value={url} onChange={setUrl} />
+          )}
 
-          {/* Input content */}
-          <div className="mt-7">
-            {inputType === "youtube" && (
-              <UrlInput type={inputType} value={url} onChange={setUrl} />
-            )}
+          {(inputType === "audio" ||
+            inputType === "video" ||
+            inputType === "images") && (
+            <UploadArea
+              type={inputType}
+              files={files}
+              isDragging={isDragging}
+              accept={getAccept()}
+              fileInputRef={fileInputRef}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={(event) => {
+                event.preventDefault();
+                setIsDragging(false);
+              }}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={handleDrop}
+              onBrowse={() => fileInputRef.current?.click()}
+              onChange={handleFileChange}
+              onRemove={removeFile}
+            />
+          )}
+        </div>
 
-            {(inputType === "audio" ||
-              inputType === "video" ||
-              inputType === "images") && (
-              <UploadArea
-                type={inputType}
-                files={files}
-                isDragging={isDragging}
-                accept={getAccept()}
-                fileInputRef={fileInputRef}
-                onDragEnter={(event) => {
-                  event.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={(event) => {
-                  event.preventDefault();
-                  setIsDragging(false);
-                }}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={handleDrop}
-                onBrowse={() => fileInputRef.current?.click()}
-                onChange={handleFileChange}
-                onRemove={removeFile}
-              />
-            )}
-          </div>
+        {/* Supported formats */}
+        <p className="mt-4 text-center text-xs text-slate-400">
+          {inputType === "youtube" && "Paste any public YouTube video URL"}
+          {inputType === "audio" && "MP3, WAV, M4A, AAC, OGG • Up to 2GB"}
+          {inputType === "video" && "MP4, MOV, AVI, WebM • Up to 2GB"}
+          {inputType === "images" &&
+            "JPG, PNG, WEBP • Multiple images supported"}
+        </p>
 
-          {/* Supported formats */}
-          <p className="mt-4 text-center text-xs text-slate-400">
-            {inputType === "youtube" && "Paste any public YouTube video URL"}
-            {inputType === "audio" && "MP3, WAV, M4A, AAC, OGG • Up to 2GB"}
-            {inputType === "video" && "MP4, MOV, AVI, WebM • Up to 2GB"}
-            {inputType === "images" &&
-              "JPG, PNG, WEBP • Multiple images supported"}
-          </p>
-
-          {/* Settings */}
-          <div className="mt-8 border-t border-slate-100 pt-7">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Content settings
-                </h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  Tell the AI how you want your content transformed.
-                </p>
-              </div>
-
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-500">
-                Optional
-              </span>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectField
-                label="Language"
-                value={language}
-                options={[
-                  "English",
-                  "French",
-                  "Spanish",
-                  "Portuguese",
-                  "German",
-                ]}
-                onChange={setLanguage}
-              />
-
-              <SelectField
-                label="Content style"
-                value={contentStyle}
-                options={[
-                  "Professional & Engaging",
-                  "Educational",
-                  "Conversational",
-                  "Bold & Viral",
-                  "Storytelling",
-                ]}
-                onChange={setContentStyle}
-              />
-            </div>
-          </div>
-
-          {/* Platforms */}
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold">Target platforms</h3>
+        {/* Settings */}
+        <div className="mt-8 border-t border-slate-100 pt-7">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">
+                Content settings
+              </h3>
               <p className="mt-1 text-xs text-slate-400">
-                Choose where your generated content will be optimized.
+                Tell the AI how you want your content transformed.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {[
-                "TikTok",
-                "Instagram",
-                "YouTube",
-                "LinkedIn",
-                "Facebook",
-                "X",
-              ].map((platform) => (
-                <label
-                  key={platform}
-                  className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-blue-300"
-                >
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  {platform}
-                </label>
-              ))}
-            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-500">
+              Optional
+            </span>
           </div>
 
-          {/* CTA */}
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50">
-                <Check className="h-3 w-3 text-emerald-600" />
-              </div>
-              Your media is processed securely
-            </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <SelectField
+              label="Language"
+              value={language}
+              options={["English", "French", "Spanish", "Portuguese", "German"]}
+              onChange={setLanguage}
+            />
 
-            <button
-              onClick={handleUploadAndProceed}
-              disabled={!hasInput || uploading}
-              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{processingStatus}</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  <span>Continue</span>
-                </>
-              )}
-            </button>
+            <SelectField
+              label="Content style"
+              value={contentStyle}
+              options={[
+                "Professional & Engaging",
+                "Educational",
+                "Conversational",
+                "Bold & Viral",
+                "Storytelling",
+              ]}
+              onChange={setContentStyle}
+            />
           </div>
-        </section>
-
-        {/* Bottom information */}
-        <div className="mx-auto mt-8 flex max-w-245 flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-slate-400">
-          <span>AI transcription</span>
-          <span>•</span>
-          <span>Custom AI prompts</span>
-          <span>•</span>
-          <span>Multi-platform optimization</span>
-          <span>•</span>
-          <span>Automatic asset generation</span>
         </div>
+
+        {/* Platforms */}
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold">Target platforms</h3>
+            <p className="mt-1 text-xs text-slate-400">
+              Choose where your generated content will be optimized.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {[
+              "TikTok",
+              "Instagram",
+              "YouTube",
+              "LinkedIn",
+              "Facebook",
+              "X",
+            ].map((platform) => (
+              <label
+                key={platform}
+                className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition hover:border-blue-300"
+              >
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                {platform}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50">
+              <Check className="h-3 w-3 text-emerald-600" />
+            </div>
+            Your media is processed securely
+          </div>
+
+          <button
+            onClick={handleUploadAndProceed}
+            disabled={!hasInput || uploading}
+            className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 cursor-pointer"
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>{processingStatus}</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                <span>Continue</span>
+              </>
+            )}
+          </button>
+        </div>
+      </section>
+
+      {/* Bottom information */}
+      <div className="mx-auto mt-8 flex max-w-245 flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-slate-400">
+        <span>AI transcription</span>
+        <span>•</span>
+        <span>Custom AI prompts</span>
+        <span>•</span>
+        <span>Multi-platform optimization</span>
+        <span>•</span>
+        <span>Automatic asset generation</span>
       </div>
-    </main>
+    </DashboardShell>
   );
 }
 
