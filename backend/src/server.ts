@@ -19,10 +19,10 @@ await server.register(cors, {
 
 await server.register(multipart, {
   limits: {
-    fileSize: 30 * 1024 * 1024,
+    fileSize: 40 * 1024 * 1024,
   },
 });
-export const MAX_DURATION: number = 600;
+export const MAX_DURATION: number = 1800;
 
 // Health check route
 server.get("/health", async (request, reply) => {

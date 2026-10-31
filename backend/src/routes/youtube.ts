@@ -92,6 +92,7 @@ export async function youtubeRoutes(server: FastifyInstance) {
             dumpSingleJson: true,
             noWarnings: true,
             skipDownload: true,
+            extractAudio: true, // Spoof mobile client to bypass bot walls
           });
 
           const durationSeconds = (metadata as any).duration || 0;
@@ -107,7 +108,7 @@ export async function youtubeRoutes(server: FastifyInstance) {
 
           jobs.set(jobId, {
             status: "extracting",
-            progressMessage: "Converting stream to MP3...",
+            progressMessage: "Converting stream to audio...",
             createdAt: Date.now(),
           });
 
