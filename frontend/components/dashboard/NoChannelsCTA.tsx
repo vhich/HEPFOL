@@ -1,30 +1,13 @@
+import { ChannelsTypes } from "@/lib/dashboard_types";
+import { useDBcontext } from "@/providers/dashboardProvider";
+import { fadedText } from "@/utils/general_styles";
 import { cn } from "cn";
-import { IconType } from "react-icons";
-import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaLinkedin, FaTiktok } from "react-icons/fa";
 import { FaThreads, FaXTwitter } from "react-icons/fa6";
-import {
-  childModeWrapper,
-  descriptionText,
-  fadedText,
-  headingFour,
-} from "./ChooseWorkflow";
+import InnerModal from "./InnerModal";
 
-type ChannelDescType =
-  | "business"
-  | "creator"
-  | "profile"
-  | "group"
-  | "personal"
-  | "page";
-
-interface ChannelsTypes {
-  id: string;
-  brand: string;
-  description: ChannelDescType[];
-  icon: IconType;
-  icon_bg_color: string;
-}
 const NoChannelsCTA = () => {
+  const { workFlow, openModal } = useDBcontext();
   const channels: ChannelsTypes[] = [
     {
       id: "fb_channel",
@@ -32,6 +15,13 @@ const NoChannelsCTA = () => {
       icon: FaFacebook,
       description: ["page", "group"],
       icon_bg_color: "bg-blue-600",
+    },
+    {
+      id: "tiktok_channel",
+      brand: "tiktok",
+      icon: FaTiktok,
+      description: ["profile"],
+      icon_bg_color: "bg-slate-200",
     },
     {
       id: "linknd_channel",
@@ -63,19 +53,23 @@ const NoChannelsCTA = () => {
     },
   ];
   return (
-    <section className={cn("mx-auto mt-10 py-6 ", childModeWrapper)}>
-      <h4 className={cn(headingFour)}>Connect a New Channel</h4>
-      <p className={cn("my-4", descriptionText)}>
-        Personalize your profile to make the most out of Hepfol.
-      </p>
+    <InnerModal
+      isHidden={!openModal || !workFlow}
+      title="Connect a Channel"
+      roleDescription={`choose a channel to connect, channels includes : ${channels.map((chan) => chan.brand).join(", ")}`}
+      className="sm:h-min"
+    >
       <div
         className={cn(
-          "grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 items-center mx-auto px-6",
+          "grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 items-center mx-auto px-6 sm:h-full h-[80%] overflow-y-auto",
         )}
       >
         {channels.map((chan) => (
           <button
             key={chan.id}
+            role="button"
+            type="button"
+            aria-roledescription={`Connect ${chan.id} for ${chan.description.join(", ")}`}
             className="border-border border rounded-xl text-center grid place-items-center hover:border-purple-500 hover:shadow-purple-300 shadow-sm h-full"
           >
             <div className="py-8 px-6 grid place-items-center ">
@@ -95,7 +89,7 @@ const NoChannelsCTA = () => {
           </button>
         ))}
       </div>
-    </section>
+    </InnerModal>
   );
 };
 

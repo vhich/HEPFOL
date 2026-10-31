@@ -1,6 +1,6 @@
+import { parentModeWrapper } from "@/utils/general_styles";
 import { cn } from "cn";
 import { ReactNode } from "react";
-import { parentModeWrapper } from "./ChooseWorkflow";
 
 const DashboardShell = ({ children }: { children: ReactNode }) => {
   return (

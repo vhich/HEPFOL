@@ -1,19 +1,10 @@
 "use client";
 import { Container } from "@mui/material";
-import { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ModeToggle } from "../ModeToggle";
 import { NavbarTablines } from "./NabarTabLines";
 import { NavbarUserDropdown } from "./NavbarUserDropdown";
-
-type dashboardPathsLabel = "home" | "contents" | "schedules";
-
-export interface DashobardPagePathTypes {
-  id: dashboardPathsLabel;
-  path: string;
-  icon: LucideIcon;
-}
 
 const Navbar = () => {
   return (

@@ -143,3 +143,26 @@ h6 {
 button {
   cursor: pointer;
 }
+image {
+  width: auto;
+  height: auto;
+}
+
+.modal-entry {
+  opacity: 0;
+  transform: translateY(1rem);
+  animation: modalEntry 0.5s ease forwards;
+  animation-delay: 0.3s;
+  transition: ease;
+}
+
+@keyframes modalEntry {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  100% {
+    opacity: 100;
+    transform: translateY(0);
+  }
+}

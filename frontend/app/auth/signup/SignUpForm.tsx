@@ -43,7 +43,7 @@ export function SignUpForm({
     <FieldGroup className="w-full">
       <FieldSet>
         {signupFieldInputs.map((input) => (
-          <Field key={input.id} data-inavlid={input.error_mssg}>
+          <Field key={input.id} data-invalid={input.error_mssg}>
             <FieldLabel htmlFor={input.id} className="capitalize">
               {input.label}
             </FieldLabel>
