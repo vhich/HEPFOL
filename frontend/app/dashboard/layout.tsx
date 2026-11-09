@@ -1,5 +1,6 @@
 import Navbar from "@/components/dashboard/Navbar";
 import { DashboardProvider } from "@/providers/dashboardProvider";
+import { UploadFileProvider } from "@/providers/uploadFileProvider";
 import type { Metadata } from "next";
 import "../globals.css";
 
@@ -15,11 +16,13 @@ export default function DashboardLayout({
 }) {
   return (
     <DashboardProvider>
-      <main className="w-full h-full overflow-x-hidden">
-        {" "}
-        <Navbar />
-        {children}
-      </main>
+      <UploadFileProvider>
+        <main className="w-full h-full overflow-x-hidden">
+          {" "}
+          <Navbar />
+          {children}
+        </main>
+      </UploadFileProvider>
     </DashboardProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { useDBcontext } from "@/providers/dashboardProvider";
+import { useUploadContext } from "@/providers/uploadFileProvider";
 import { childModeWrapper, headingFour } from "@/utils/general_styles";
 import { cn } from "cn";
 import { X } from "lucide-react";
@@ -21,6 +22,7 @@ const InnerModal = ({
   children,
 }: InnerModalTypes) => {
   const { setOpenModal, setWorkFlow, removeFileandUrl } = useDBcontext();
+  const { setState, setError, setProgressMessage } = useUploadContext();
   return (
     <div
       aria-hidden={isHidden}
@@ -41,6 +43,9 @@ const InnerModal = ({
               setWorkFlow("");
               setOpenModal(false);
               removeFileandUrl();
+              setState("idle");
+              setError("");
+              setProgressMessage("");
             }
           }}
           className={cn(

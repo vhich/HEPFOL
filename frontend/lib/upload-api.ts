@@ -1,5 +1,7 @@
 // lib/upload-api.ts
 
+import { getSupabaseBrowserClient } from "./supabase/client";
+
 export type UploadStatus =
   | "queued"
   | "inspecting"
@@ -40,18 +42,31 @@ interface UploadStatusResponse extends UploadJob {
  * The server intentionally responds before media processing finishes.
  * The returned jobId is then used to check the processing status.
  */
-export async function uploadFile(file: File): Promise<string> {
+const serverUrl = "http://localhost:4000";
+const supabase = getSupabaseBrowserClient();
+export async function uploadFile(files: File[]): Promise<string> {
+  // 1. Create a new FormData instance
   const formData = new FormData();
 
-  formData.append("file", file);
+  // 2. Append each file to the FormData object
+  files.forEach((file) => {
+    formData.append("files", file); // Change "files" to match your backend's expected field name
+  });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const response = await fetch("/upload", {
+  if (!session) {
+    alert("You must be logged in to upload files.");
+    return "Unauthorised!";
+  }
+  const response = await fetch(`${serverUrl}/upload`, {
     method: "POST",
     body: formData,
 
-    // Don't manually set Content-Type.
-    // The browser automatically adds the multipart boundary.
-    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
 
   let data: UploadResponse;
@@ -73,11 +88,28 @@ export async function uploadFile(file: File): Promise<string> {
  * Retrieves the current state of a background upload job.
  */
 export async function getUploadStatus(jobId: string): Promise<UploadJob> {
-  const response = await fetch(`/upload-status/${encodeURIComponent(jobId)}`, {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store",
-  });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    alert("You must be logged in to upload files.");
+    return {
+      status: "failed",
+      progressMessage: "",
+      createdAt: 0,
+    };
+  }
+  const response = await fetch(
+    `${serverUrl}/upload-status/${encodeURIComponent(jobId)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    },
+  );
 
   let data: UploadStatusResponse;
 

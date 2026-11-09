@@ -8,10 +8,14 @@ import {
 } from "./upload/job-store";
 import { processAudioVideo } from "./upload/process-audio-video";
 import { processImage } from "./upload/process-image";
+import { processPdf } from "./upload/process-pdf";
 
 const JOB_EXPIRATION_MS = 30 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+
+const PDF_EXTENSIONS = new Set([".pdf"]);
 
 export { createUploadJob, getUploadJob } from "./upload/job-store";
 export type { UploadInput, UploadJob, UploadJobStatus } from "./upload/types";
@@ -27,6 +31,8 @@ export async function processUploadJob(jobId: string): Promise<void> {
   try {
     if (IMAGE_EXTENSIONS.has(input.extension)) {
       await processImage(input, jobId);
+    } else if (PDF_EXTENSIONS.has(input.extension)) {
+      await processPdf(input, jobId);
     } else {
       await processAudioVideo(input, jobId);
     }

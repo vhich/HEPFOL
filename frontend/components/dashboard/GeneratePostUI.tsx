@@ -10,6 +10,7 @@ import { validateFiles } from "@/utils/validate_file_upload";
 import { cn } from "cn";
 import { ChangeEvent, DragEvent, useRef } from "react";
 
+import { useUpload } from "@/hooks/use-upload";
 import InnerModal from "./InnerModal";
 import UploadTabs from "./UploadTabs";
 
@@ -27,6 +28,8 @@ const GeneratePostUI = () => {
     setUploadError,
     uploadError,
   } = useDBcontext();
+
+  const { upload } = useUpload();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,8 +66,9 @@ const GeneratePostUI = () => {
         preview: URL.createObjectURL(file),
       }));
 
-      setFiles((prev) => [...prev, ...mapped]);
+      await upload(validFiles);
       const result = await validateFiles(selectedFiles, inputType);
+      setFiles((prev) => [...prev, ...mapped]);
       setUploadError(result);
     }
   };
@@ -116,7 +120,6 @@ const GeneratePostUI = () => {
 
     return undefined;
   };
-
   const upLoadArea = (
     <UploadArea
       type={inputType}

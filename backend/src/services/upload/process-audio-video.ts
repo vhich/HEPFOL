@@ -1,7 +1,7 @@
 import fs from "fs/promises";
-import { inspectDuration, extractAudio } from "./media-tools";
-import { sha256File, removeLocalFiles } from "./file-utils";
+import { removeLocalFiles, sha256File } from "./file-utils";
 import { updateUploadJob } from "./job-store";
+import { extractAudio, inspectDuration } from "./media-tools";
 import {
   createProject,
   createStoragePath,
@@ -30,11 +30,7 @@ export async function processAudioVideo(
       progressMessage: "Extracting audio.",
     });
 
-    await extractAudio(
-      input.tempUploadPath,
-      outputAudioPath,
-      durationSeconds,
-    );
+    await extractAudio(input.tempUploadPath, outputAudioPath, durationSeconds);
 
     updateUploadJob(jobId, {
       status: "hashing",
@@ -42,10 +38,7 @@ export async function processAudioVideo(
     });
 
     const mediaHash = await sha256File(outputAudioPath);
-    const existingProject = await findDuplicateProject(
-      input.userId,
-      mediaHash,
-    );
+    const existingProject = await findDuplicateProject(input.userId, mediaHash);
 
     if (existingProject) {
       updateUploadJob(jobId, {
@@ -75,7 +68,7 @@ export async function processAudioVideo(
 
       updateUploadJob(jobId, {
         status: "completed",
-        progressMessage: "Processing and upload complete.",
+        progressMessage: "Upload complete.",
         result: {
           projectId,
           duplicate: false,

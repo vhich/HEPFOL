@@ -14,12 +14,14 @@ const server = Fastify({
 
 // Register plugins
 await server.register(cors, {
-  origin: true,
+  origin: ["http://localhost:3000", "https://hepfol.vercel.app"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 });
 
 await server.register(multipart, {
   limits: {
-    fileSize: 40 * 1024 * 1024,
+    fileSize: 30 * 1024 * 1024,
   },
 });
 export const MAX_DURATION: number = 1800;

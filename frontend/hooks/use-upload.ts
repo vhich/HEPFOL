@@ -8,28 +8,37 @@ import {
   type UploadJob,
   type UploadStatus,
 } from "@/lib/upload-api";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useDBcontext } from "@/providers/dashboardProvider";
+import { useUploadContext } from "@/providers/uploadFileProvider";
+import { useCallback, useEffect, useRef } from "react";
 
-type UploadState = "idle" | "uploading" | UploadStatus;
+export type UploadState = "idle" | "uploading" | UploadStatus;
 
 interface UseUploadReturn {
   state: UploadState;
   progressMessage: string;
   error: string | null;
   job: UploadJob | null;
-  upload: (file: File) => Promise<void>;
+  upload: (file: File[]) => Promise<void>;
   reset: () => void;
 }
 
 const POLL_INTERVAL = 1500;
 
 export function useUpload(): UseUploadReturn {
-  const [state, setState] = useState<UploadState>("idle");
-  const [progressMessage, setProgressMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [job, setJob] = useState<UploadJob | null>(null);
+  const {
+    state,
+    setState,
+    progressMessage,
+    setProgressMessage,
+    error,
+    setError,
+    job,
+    setJob,
+  } = useUploadContext();
 
   const pollingRef = useRef(false);
+  const { removeFileandUrl } = useDBcontext();
 
   const reset = useCallback(() => {
     pollingRef.current = false;
@@ -38,9 +47,10 @@ export function useUpload(): UseUploadReturn {
     setProgressMessage("");
     setError(null);
     setJob(null);
+    removeFileandUrl();
   }, []);
 
-  const upload = useCallback(async (file: File) => {
+  const upload = useCallback(async (files: File[]) => {
     // Prevent two uploads from being started through the same hook instance.
     if (pollingRef.current) {
       return;
@@ -52,9 +62,8 @@ export function useUpload(): UseUploadReturn {
     setProgressMessage("Uploading file...");
     setError(null);
     setJob(null);
-
     try {
-      const jobId = await uploadFile(file);
+      const jobId = await uploadFile(files);
 
       setState("queued");
       setProgressMessage("Upload received. Processing...");
