@@ -51,7 +51,7 @@ export interface WorkFlowTypes {
   description: string;
 }
 export const FILE_LIMITS = {
-  sizeMB: 30,
+  sizeMB: 40,
   videoDurationMinutes: 30,
 } as const;
 
