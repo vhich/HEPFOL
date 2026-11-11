@@ -1,9 +1,9 @@
-import { useUpload } from "@/hooks/use-upload";
 import { InputType, MediaFile } from "@/lib/dashboard_types";
 import { useDBcontext } from "@/providers/dashboardProvider";
-import { headingFive } from "@/utils/general_styles";
-import { Plus } from "lucide-react";
+import { useUploadContext } from "@/providers/uploadFileProvider";
+import { InfoIcon, Plus, Sparkles } from "lucide-react";
 import { ChangeEvent, DragEvent } from "react";
+import { Button } from "../ui/button";
 import { FilePreview } from "./FIlePreview";
 import CustomizeContent from "./MediaAndFileProcess";
 import UploadProcess from "./UploadProcess";
@@ -38,33 +38,32 @@ export function UploadArea({
   const isImages = type === "images";
 
   const { uploadError, inputType } = useDBcontext();
-  const { state } = useUpload();
-  const status = state.toLowerCase();
-  const isBusy =
-    status === "uploading" ||
-    status === "queued" ||
-    status === "inspecting" ||
-    status === "converting" ||
-    status === "hashing" ||
-    status === "failed";
-  const notBUsy = status === "idle" || status === "completed";
+  const { isBusy, notBusy } = useUploadContext();
+  const isManyFilesError =
+    uploadError?.error?.toLowerCase() === "too many files";
   return (
     <>
       {isBusy ? (
         <UploadProcess />
       ) : (
         <>
-          {notBUsy && (
+          {notBusy && (
             <>
-              {uploadError?.error?.toLowerCase() === "too many files" &&
-                !uploadError.valid && (
-                  <div className="text-destructive bg-destructive/30 p-4 rounded-lg border border-destructive my-6">
-                    <h5 className={`${headingFive}`}>{uploadError.error}</h5>
-                    <p className="text-sm">
-                      Please upload maximum of 10 images.
-                    </p>
+              {!uploadError?.valid && uploadError?.error !== undefined && (
+                <div
+                  className={`flex ${isManyFilesError && "items-center"} text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive my-6 gap-3`}
+                >
+                  <InfoIcon />
+                  <div>
+                    <h6>{uploadError?.error}</h6>
+                    {isManyFilesError && (
+                      <p className="text-sm">
+                        Please upload maximum of 10 images.
+                      </p>
+                    )}
                   </div>
-                )}
+                </div>
+              )}
               <div>
                 <input
                   ref={fileInputRef}
@@ -121,7 +120,7 @@ export function UploadArea({
                     </div>
                     <div className="w-full">
                       <div
-                        className={`overflow-y-auto w-full h-fit max-h-[60dvh] ${inputType !== "images" ? "grid" : "flex flex-wrap"}`}
+                        className={`overflow-y-auto w-full h-fit max-h-[60dvh] border border-border rounded-2xl ${inputType !== "images" ? "grid" : "flex flex-wrap"}`}
                       >
                         {files.map((item) => (
                           <FilePreview
@@ -131,7 +130,19 @@ export function UploadArea({
                           />
                         ))}
                       </div>
-                      <CustomizeContent />
+                      {uploadError?.valid && (
+                        <>
+                          <CustomizeContent />
+                          <Button
+                            className={
+                              "sm:py-6 sm:px-5 py-7 tracking-wider my-10 w-md max-w-full"
+                            }
+                          >
+                            <Sparkles />
+                            Generate content
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

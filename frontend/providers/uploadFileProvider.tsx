@@ -20,6 +20,8 @@ interface UploadContextTypes {
   progressMessage: string;
   error: string | null;
   job: UploadJob | null;
+  isBusy: boolean;
+  notBusy: boolean;
 }
 
 const uploadContext = createContext<UploadContextTypes | undefined>(undefined);
@@ -28,6 +30,16 @@ export const UploadFileProvider = ({ children }: { children: ReactNode }) => {
   const [progressMessage, setProgressMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [job, setJob] = useState<UploadJob | null>(null);
+
+  const status = state.toLowerCase();
+  const isBusy =
+    status === "uploading" ||
+    status === "queued" ||
+    status === "inspecting" ||
+    status === "converting" ||
+    status === "hashing" ||
+    status === "failed";
+  const notBusy = status === "idle" || status === "completed";
 
   return (
     <uploadContext.Provider
@@ -40,6 +52,8 @@ export const UploadFileProvider = ({ children }: { children: ReactNode }) => {
         progressMessage,
         error,
         job,
+        isBusy,
+        notBusy,
       }}
     >
       {children}{" "}

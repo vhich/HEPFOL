@@ -6,11 +6,12 @@ import {
   MediaFile,
 } from "@/lib/dashboard_types";
 import { useDBcontext } from "@/providers/dashboardProvider";
-import { validateFiles } from "@/utils/validate_file_upload";
 import { cn } from "cn";
 import { ChangeEvent, DragEvent, useRef } from "react";
 
 import { useUpload } from "@/hooks/use-upload";
+import { useUploadContext } from "@/providers/uploadFileProvider";
+import { validateFiles } from "@/utils/validate_file_upload";
 import InnerModal from "./InnerModal";
 import UploadTabs from "./UploadTabs";
 
@@ -22,7 +23,6 @@ const GeneratePostUI = () => {
     setFiles,
     setIsDragging,
     files,
-    url,
     isDragging,
     removeFileandUrl,
     setUploadError,
@@ -30,6 +30,7 @@ const GeneratePostUI = () => {
   } = useDBcontext();
 
   const { upload } = useUpload();
+  const { notBusy, state, setState } = useUploadContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,17 +60,54 @@ const GeneratePostUI = () => {
         valid: false,
         error: "Too many files",
       });
-    } else {
-      const mapped: MediaFile[] = validFiles.map((file) => ({
-        id: `${file.name}-${file.size}-${Date.now()}-${Math.random()}`,
-        file,
-        preview: URL.createObjectURL(file),
-      }));
+    }
 
-      await upload(validFiles);
-      const result = await validateFiles(selectedFiles, inputType);
-      setFiles((prev) => [...prev, ...mapped]);
+    if (validFiles.length !== incoming.length) {
+      setUploadError({
+        valid: false,
+        error: "One or more selected files are not valid for this input type.",
+      });
+
+      return;
+    }
+
+    setUploadError(undefined);
+
+    const result = await validateFiles(validFiles, inputType);
+
+    if (!result.valid) {
       setUploadError(result);
+      return;
+    }
+
+    const mapped: MediaFile[] = validFiles.map((file) => ({
+      id: `${file.name}-${file.size}-${Date.now()}-${Math.random()}`,
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    try {
+      await upload(validFiles);
+      setFiles((prev) => [...prev, ...mapped]);
+
+      setUploadError({
+        valid: true,
+      });
+    } catch (error) {
+      // Upload failed.
+      // Do NOT populate files.
+      mapped.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+
+      setUploadError({
+        valid: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "The files could not be uploaded.",
+      });
     }
   };
 
@@ -100,6 +138,9 @@ const GeneratePostUI = () => {
       }
       return prev.filter((item) => item.id !== id);
     });
+    if (files.length === 1) {
+      setState("idle");
+    }
   };
 
   const getAccept = () => {
@@ -189,14 +230,17 @@ const GeneratePostUI = () => {
       className={cn("lg:min-w-200 md:min-w-150 w-full")}
     >
       <div className="max-w-2xl mx-auto sm:p-0 p-3">
-        <div className="my-10 flex items-center justify-center max-w-lg mx-auto">
-          <Step number="1" label="Add Media / URL" active />
-          <StepConnector />
-          <Step number="2" label="Customize" />
-          <StepConnector />
-          <Step number="3" label="Generate" />
-        </div>
-        {files.length < 1 && url === "" && <UploadTabs />}
+        {notBusy && (
+          <div className="my-10 flex sm:gap-0 gap-2 items-center justify-center max-w-lg mx-auto">
+            <Step number="1" label="Add Media / URL" />
+            <StepConnector />
+            <Step number="2" label="Customize" />
+            <StepConnector />
+            <Step number="3" label="Generate" />
+          </div>
+        )}
+
+        {files.length === 0 && state === "idle" && <UploadTabs />}
 
         {inputTypeUI.find((input) => input.id === inputType)?.userInterface}
         <p className="mt-4 text-center text-xs text-slate-400">

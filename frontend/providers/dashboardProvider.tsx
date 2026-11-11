@@ -35,6 +35,7 @@ interface DashboardContextType {
   setAttempts: Dispatch<SetStateAction<number>>;
   setUploadResult: Dispatch<SetStateAction<UploadResultTypes | null>>; //Response from server
   setUploadError: Dispatch<SetStateAction<FileValidationResult | undefined>>; //CLient side upload error response
+  setSteps: Dispatch<SetStateAction<number[]>>;
   uploadError: FileValidationResult | undefined;
   user: UserType;
   openModal: boolean;
@@ -48,6 +49,7 @@ interface DashboardContextType {
   uploading: boolean;
   processingStatus: string;
   attempts: number;
+  steps: number[];
   uploadResult: UploadResultTypes | null;
   serverUrl: string;
   removeFileandUrl: () => void;
@@ -71,6 +73,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [uploadResult, setUploadResult] = useState<UploadResultTypes | null>(
     null,
   );
+  const [steps, setSteps] = useState<number[]>([1]);
   const [user, setUser] = useState<UserType>({
     avatar_url: "",
     email: "",
@@ -129,6 +132,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setFiles([]);
     setUrl("");
     setInputType(inputType);
+    setSteps([1]);
   }
   const serverUrl = process.env.SERVER_BASE_URL || "http://localhost:4000";
   return (
@@ -148,6 +152,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         setUploadResult,
         setUploadError,
         setFiles,
+        setSteps,
+        steps,
         user,
         openModal,
         workFlow,

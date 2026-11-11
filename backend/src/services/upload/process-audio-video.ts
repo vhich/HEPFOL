@@ -3,11 +3,9 @@ import { removeLocalFiles, sha256File } from "./file-utils";
 import { updateUploadJob } from "./job-store";
 import { extractAudio, inspectDuration } from "./media-tools";
 import {
-  createProject,
   createStoragePath,
   findDuplicateProject,
   removeFromStorage,
-  uploadToStorage,
 } from "./storage";
 import type { UploadInput } from "./types";
 
@@ -57,20 +55,19 @@ export async function processAudioVideo(
     const audioBuffer = await fs.readFile(outputAudioPath);
     const storagePath = createStoragePath(input.userId, ".mp3");
 
-    await uploadToStorage(storagePath, audioBuffer, "audio/mpeg");
+    // await uploadToStorage(storagePath, audioBuffer, "audio/mpeg");
 
     try {
-      const projectId = await createProject({
-        userId: input.userId,
-        mediaHash,
-        storagePath,
-      });
+      // const projectId = await createProject({
+      //   userId: input.userId,
+      //   mediaHash,
+      //   storagePath,
+      // });
 
       updateUploadJob(jobId, {
         status: "completed",
         progressMessage: "Upload complete.",
         result: {
-          projectId,
           duplicate: false,
           durationSeconds,
           title: input.originalFilename,

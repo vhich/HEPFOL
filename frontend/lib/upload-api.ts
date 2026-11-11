@@ -10,6 +10,11 @@ export type UploadStatus =
   | "completed"
   | "failed";
 
+export type UploadJobInfo = {
+  jobId: string;
+  filename: string;
+};
+
 export interface UploadJobResult {
   projectId: string;
   duplicate: boolean;
@@ -27,7 +32,7 @@ export interface UploadJob {
 
 interface UploadResponse {
   success: boolean;
-  jobId?: string;
+  jobs: UploadJobInfo[];
   status?: "queued";
   error?: string;
 }
@@ -44,7 +49,7 @@ interface UploadStatusResponse extends UploadJob {
  */
 const serverUrl = "http://localhost:4000";
 const supabase = getSupabaseBrowserClient();
-export async function uploadFile(files: File[]): Promise<string> {
+export async function uploadFile(files: File[]): Promise<UploadJobInfo[]> {
   // 1. Create a new FormData instance
   const formData = new FormData();
 
@@ -57,8 +62,7 @@ export async function uploadFile(files: File[]): Promise<string> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    alert("You must be logged in to upload files.");
-    return "Unauthorised!";
+    throw new Error("You must be logged in to upload file!");
   }
   const response = await fetch(`${serverUrl}/upload`, {
     method: "POST",
@@ -77,31 +81,40 @@ export async function uploadFile(files: File[]): Promise<string> {
     throw new Error("The server returned an invalid response.");
   }
 
-  if (!response.ok || !data.success || !data.jobId) {
+  if (!response.ok || !data.success || !data.jobs.length) {
     throw new Error(data.error || "Upload could not be started.");
   }
 
-  return data.jobId;
+  return data.jobs;
 }
 
 /**
  * Retrieves the current state of a background upload job.
  */
-export async function getUploadStatus(jobId: string): Promise<UploadJob> {
+// lib/upload-api.ts
+
+export async function getUploadStatus(
+  jobId: string | { jobId: string },
+): Promise<UploadJob> {
+  const cleanJobId =
+    typeof jobId === "object" && jobId !== null && "jobId" in jobId
+      ? (jobId as { jobId: string }).jobId
+      : String(jobId);
+
+  if (!cleanJobId || cleanJobId === "[object Object]") {
+    throw new Error(`Invalid job ID format`);
+  }
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
-    alert("You must be logged in to upload files.");
-    return {
-      status: "failed",
-      progressMessage: "",
-      createdAt: 0,
-    };
+    throw new Error("You must be logged in to upload files.");
   }
+
   const response = await fetch(
-    `${serverUrl}/upload-status/${encodeURIComponent(jobId)}`,
+    `${serverUrl}/upload-status/${encodeURIComponent(cleanJobId)}`,
     {
       method: "GET",
       headers: {

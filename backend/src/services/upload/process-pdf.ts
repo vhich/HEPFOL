@@ -5,11 +5,9 @@ import { sha256File } from "./file-utils";
 import { updateUploadJob } from "./job-store";
 import { getPdfPageCount } from "./pdf-tools";
 import {
-  createProject,
   createStoragePath,
   findDuplicateProject,
   removeFromStorage,
-  uploadToStorage,
 } from "./storage";
 import type { UploadInput } from "./types";
 
@@ -47,20 +45,19 @@ export async function processPdf(
 
   const storagePath = createStoragePath(input.userId, input.extension);
 
-  await uploadToStorage(storagePath, pdfBuffer, input.mimetype);
+  // await uploadToStorage(storagePath, pdfBuffer, input.mimetype);
 
   try {
-    const projectId = await createProject({
-      userId: input.userId,
-      mediaHash,
-      storagePath,
-    });
+    // const projectId = await createProject({
+    //   userId: input.userId,
+    //   mediaHash,
+    //   storagePath,
+    // });
 
     updateUploadJob(jobId, {
       status: "completed",
       progressMessage: "PDF uploaded successfully.",
       result: {
-        projectId,
         duplicate: false,
         durationSeconds: 0,
         title: input.originalFilename,

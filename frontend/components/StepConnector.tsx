@@ -1,17 +1,13 @@
-export function Step({
-  number,
-  label,
-  active = false,
-}: {
-  number: string;
-  label: string;
-  active?: boolean;
-}) {
+import { useDBcontext } from "@/providers/dashboardProvider";
+
+export function Step({ number, label }: { number: string; label: string }) {
+  const { steps } = useDBcontext();
+  const isActive = steps.includes(parseInt(number));
   return (
     <div className="flex items-center gap-2">
       <div
         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
-          active
+          isActive
             ? "bg-purple-600 text-white"
             : "bg-transparent text-muted-foreground"
         }`}
@@ -21,7 +17,7 @@ export function Step({
 
       <span
         className={`text-xs font-medium ${
-          active ? "text-purple-400" : "text-muted-foreground"
+          isActive ? "text-purple-400" : "text-muted-foreground"
         }`}
       >
         {label}

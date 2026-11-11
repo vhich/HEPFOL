@@ -2,6 +2,7 @@ import { InputType } from "@/lib/dashboard_types";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 import { useDBcontext } from "@/providers/dashboardProvider";
+import { useUploadContext } from "@/providers/uploadFileProvider";
 import { cn } from "cn";
 import { AudioLines, File, ImagePlus, LucideIcon, Video } from "lucide-react";
 import { IconType } from "react-icons";
@@ -37,11 +38,13 @@ export const inputTabs = [
 const UploadTabs = () => {
   const { setInputType, setUrl, setFiles, inputType, setUploadError } =
     useDBcontext();
+  const { setState } = useUploadContext();
   const handleInputTypeChange = (type: InputType) => {
     setInputType(type);
     setUrl("");
     setFiles([]);
     setUploadError(undefined);
+    setState("idle");
   };
 
   return (

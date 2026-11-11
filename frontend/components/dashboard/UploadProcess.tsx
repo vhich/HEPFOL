@@ -1,7 +1,6 @@
 "use client";
 
 import { useUpload } from "@/hooks/use-upload";
-import { headingFive } from "@/utils/general_styles";
 import { Info, LoaderCircle, X } from "lucide-react";
 
 export default function UploadProcess() {
@@ -24,13 +23,14 @@ export default function UploadProcess() {
               size={30}
               className="animate-spin duration-300 text-primary"
             />
+            <p className="text-sm opacity-85">{getStateDescription(state)}</p>
 
-            <span className="text-muted-foreground">
+            {/* <span className="text-muted-foreground">
               {progressMessage || "Processing..."}
-            </span>
+            </span> */}
           </div>
 
-          <p className="text-sm opacity-85">{getStateDescription(state)}</p>
+          {/* <p className="text-sm opacity-85">{getStateDescription(state)}</p> */}
         </div>
       )}
 
@@ -61,16 +61,14 @@ export default function UploadProcess() {
 
       {/* Error state */}
       {state === "failed" && error && (
-        <div className="rounded-lg border bg-destructive/10 p-4 relative">
-          <p className="my-3 text-sm text-destructive flex items-center gap-2">
-            <span>
-              <Info size={20} />
-            </span>
-            Upload failed
-          </p>
-          <h5 className={`${headingFive} font-medium text-destructive`}>
-            {error}
-          </h5>
+        <div className="rounded-lg border border-destructive bg-destructive/10 p-4 relative flex gap-3">
+          <span>
+            <Info size={30} className="text-destructive" />
+          </span>
+          <div>
+            <p className="mb-3 text-destructive">Upload failed</p>
+            <h6 className={`font-medium text-destructive`}>{error}</h6>
+          </div>
 
           <button
             type="button"
@@ -91,10 +89,10 @@ function getStateDescription(state: string): string {
       return "Sending your file to the server.";
 
     case "queued":
-      return "Your file has been received and is waiting to be processed.";
+      return "File received and waiting to be processed.";
 
     case "inspecting":
-      return "Checking the media and verifying its duration.";
+      return "Checking and verifying file.";
 
     case "converting":
       return "Extracting the audio from your media.";

@@ -7,7 +7,7 @@ import {
 export const MAX_SIZE_BYTES = FILE_LIMITS.sizeMB * 1024 * 1024;
 
 export const MAX_DURATION_SECONDS = FILE_LIMITS.videoDurationMinutes * 60;
-function validateFile(
+async function validateFile(
   file: File,
   type: InputType,
 ): Promise<FileValidationResult> {
@@ -15,7 +15,7 @@ function validateFile(
   if (file.size > MAX_SIZE_BYTES) {
     return Promise.resolve({
       valid: false,
-      error: `${file.name} is too large. Maximum size is ${FILE_LIMITS.sizeMB}MB.`,
+      error: `${file.name} is too large. Max size must be atleast ${FILE_LIMITS.sizeMB}MB.`,
     });
   }
 
@@ -46,7 +46,7 @@ export function validateVideoDuration(
       if (duration > MAX_DURATION_SECONDS) {
         resolve({
           valid: false,
-          error: `${file.name} is too long. Maximum duration is ${FILE_LIMITS.videoDurationMinutes} minutes.`,
+          error: `${file.name} is too long. Max duration must be atleast ${FILE_LIMITS.videoDurationMinutes} minutes.`,
         });
 
         return;

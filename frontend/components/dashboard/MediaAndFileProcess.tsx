@@ -2,18 +2,18 @@ import { YoutubeExtractedDataType } from "@/lib/dashboard_types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useDBcontext } from "@/providers/dashboardProvider";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 
 type ContentSettingsTypes = "content-style" | "content-language";
 
-const contentStyle = [
+const contentStyles = [
   "Professional & Engaging",
   "Educational",
   "Conversational",
   "Bold & Viral",
   "Storytelling",
 ];
-const contentLanguage = [
+const contentLanguages = [
   "English",
   "French",
   "Spanish",
@@ -21,37 +21,75 @@ const contentLanguage = [
   "German",
 ];
 const CustomizeContent = () => {
+  const [contentStyle, setContentStyle] = useState<string>("");
+  const [contentLanguage, setContentLanguage] = useState<string>("");
   const contentSettings = [
     {
       id: "content-style" as ContentSettingsTypes,
-      list: contentStyle,
+      list: contentStyles,
     },
     {
       id: "content-language" as ContentSettingsTypes,
-      list: contentLanguage,
+      list: contentLanguages,
     },
   ];
 
+  const setContentSettingValue = (
+    e: ChangeEvent<HTMLSelectElement>,
+    setting: ContentSettingsTypes,
+  ) => {
+    if (setting === "content-language") {
+      setContentLanguage(e.target.value);
+    } else if (setting === "content-style") {
+      setContentStyle(e.target.value);
+    }
+  };
+
   return (
-    <div className="max-w-min min-w-full">
+    <div className="w-md max-w-full">
       <p className="text-muted-foreground my-3 text-sm">Customize content</p>
       <div className="flex sm:flex-row flex-col gap-6">
         {contentSettings.map((setting) => (
           <select
             key={setting.id}
-            className=" border bg-accent border-border p-3 rounded-lg"
+            className=" border bg-accent border-border p-3 rounded-lg text-sm"
             name={setting.id}
+            value={
+              setting.id === "content-language" ? contentLanguage : contentStyle
+            }
+            onChange={(e) => setContentSettingValue(e, setting.id)}
           >
-            <option className={"capitalize"} disabled>
+            <option className={"capitalize text-sm"} disabled>
               Select {setting.id.replace("-", " ")}
             </option>
             {setting.list.map((list) => (
-              <option value={list} key={list} className="font-light">
+              <option value={list} key={list} className="capitalize text-sm">
                 {list}
               </option>
             ))}
           </select>
         ))}
+        {/* <>
+          {contentSettings.map((setting) => (
+            <div key={setting.id} className="flex flex-col gap-y-2">
+              {setting.list.map((list) => (
+                <RadioGroupChoiceCard
+                  key={list}
+                  value={list}
+                  selectedValue={
+                    setting.id === "content-language"
+                      ? contentLanguage
+                      : contentStyle
+                  }
+                  setValue={(list) => {
+                    setContentLanguageValue(list);
+                    setContentStyleValue(list);
+                  }}
+                />
+              ))}
+            </div>
+          ))}
+        </> */}
       </div>
     </div>
   );

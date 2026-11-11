@@ -1,7 +1,11 @@
 import fs from "fs/promises";
-import { findDuplicateProject, createProject, createStoragePath, removeFromStorage, uploadToStorage } from "./storage";
 import { sha256File } from "./file-utils";
 import { updateUploadJob } from "./job-store";
+import {
+  createStoragePath,
+  findDuplicateProject,
+  removeFromStorage,
+} from "./storage";
 import type { UploadInput } from "./types";
 
 export async function processImage(
@@ -35,20 +39,19 @@ export async function processImage(
   const imageBuffer = await fs.readFile(input.tempUploadPath);
   const storagePath = createStoragePath(input.userId, input.extension);
 
-  await uploadToStorage(storagePath, imageBuffer, input.mimetype);
+  // await uploadToStorage(storagePath, imageBuffer, input.mimetype);
 
   try {
-    const projectId = await createProject({
-      userId: input.userId,
-      mediaHash,
-      storagePath,
-    });
+    // const projectId = await createProject({
+    //   userId: input.userId,
+    //   mediaHash,
+    //   storagePath,
+    // });
 
     updateUploadJob(jobId, {
       status: "completed",
       progressMessage: "Image uploaded successfully.",
       result: {
-        projectId,
         duplicate: false,
         durationSeconds: 0,
         title: input.originalFilename,

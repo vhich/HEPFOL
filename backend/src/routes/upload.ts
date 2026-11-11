@@ -54,43 +54,45 @@ export async function uploadRoutes(server: FastifyInstance) {
   server.post(
     "/upload",
     async (request: FastifyRequest, reply: FastifyReply) => {
-      let tempUploadPath: string | undefined;
+      const tempUploadPaths: string[] = [];
 
       try {
         const user = await verifiedUser(request, reply);
 
-        // if (!user?.id) {
-        //   return reply.code(401).send({
-        //     success: false,
-        //     error: "Unauthorized.",
-        //   });
-        // }
-
-        const parts = request.files();
-
-        if (!parts) {
-          return reply.code(400).send({
+        if (!user?.id) {
+          return reply.code(401).send({
             success: false,
-            error: "No file uploaded.",
+            error: "Unauthorized.",
           });
         }
 
-        for await (const data of parts) {
+        // IMPORTANT:
+        // request.files() allows us to receive multiple files.
+        const files = [];
+
+        for await (const data of request.files()) {
           const ext = getSafeExtension(data.filename);
           const mimetype = data.mimetype.toLowerCase();
 
           if (!ext || !isAllowedMime(ext, mimetype)) {
             data.file.resume();
 
+            // Clean up anything already written.
+            await Promise.all(
+              tempUploadPaths.map((file) =>
+                fs.rm(file, { force: true }).catch(() => {}),
+              ),
+            );
+
             return reply.code(400).send({
               success: false,
-              error: "Unsupported file type.",
+              error: `Unsupported file type: ${data.filename}`,
             });
           }
 
           const tempId = crypto.randomBytes(16).toString("hex");
 
-          tempUploadPath = path.join(
+          const tempUploadPath = path.join(
             os.tmpdir(),
             `media-upload-${tempId}${ext}`,
           );
@@ -103,41 +105,97 @@ export async function uploadRoutes(server: FastifyInstance) {
             }),
           );
 
+          tempUploadPaths.push(tempUploadPath);
+
           if (data.file.truncated) {
             await fs.rm(tempUploadPath, { force: true });
 
             return reply.code(413).send({
               success: false,
-              error: "File is too large.",
+              error: `File is too large: ${data.filename}`,
             });
           }
 
-          const jobId = createUploadJob({
-            userId: user.id,
+          files.push({
             tempUploadPath,
             originalFilename: safeDisplayName(data.filename),
             extension: ext,
             mimetype,
           });
+        }
 
-          // Processing is implemented by the background service, not by the
-          // HTTP route. The request can therefore return immediately.
-          void processUploadJob(jobId).catch(() => {
-            // The service owns persistent job-state/error handling.
+        if (files.length === 0) {
+          return reply.code(400).send({
+            success: false,
+            error: "No file uploaded.",
+          });
+        }
+
+        /*
+         * MULTI-UPLOAD RULE
+         *
+         * 1 file  -> anything allowed
+         *
+         * 2+ files -> EVERY file must be an image
+         */
+        if (files.length > 1) {
+          const allImages = files.every((file) =>
+            [".jpg", ".jpeg", ".png", ".webp"].includes(file.extension),
+          );
+
+          if (!allImages) {
+            return reply.code(400).send({
+              success: false,
+              error: "Upload non-image files individually.",
+            });
+          }
+        }
+
+        /*
+         * IMPORTANT:
+         * Every file gets its OWN job.
+         *
+         * Do NOT create one job and overwrite its input for every file.
+         */
+        const jobs = [];
+
+        for (const file of files) {
+          const jobId = createUploadJob({
+            userId: user.id,
+            tempUploadPath: file.tempUploadPath,
+            originalFilename: file.originalFilename,
+            extension: file.extension,
+            mimetype: file.mimetype,
           });
 
-          tempUploadPath = undefined;
-
-          return reply.code(202).send({
-            success: true,
+          jobs.push({
             jobId,
-            status: "queued",
+            filename: file.originalFilename,
           });
+
+          // The background service owns cleanup after processing.
+          void processUploadJob(jobId).catch(() => {});
         }
-      } catch {
-        if (tempUploadPath) {
-          await fs.rm(tempUploadPath, { force: true }).catch(() => {});
-        }
+
+        // The background jobs now own these temporary files.
+        tempUploadPaths.length = 0;
+
+        return reply.code(202).send({
+          success: true,
+          count: jobs.length,
+          jobs,
+          status: "queued",
+        });
+      } catch (error) {
+        console.error("Upload failed:", error);
+
+        // Only files that haven't been handed over to a job
+        // should be cleaned up here.
+        await Promise.all(
+          tempUploadPaths.map((file) =>
+            fs.rm(file, { force: true }).catch(() => {}),
+          ),
+        );
 
         return reply.code(500).send({
           success: false,
