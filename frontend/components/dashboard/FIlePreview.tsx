@@ -40,7 +40,7 @@ export function FilePreview({
       className={`group relative items-center gap-3 overflow-hidden p-2.5 ${invalidUpload && "bg-destructive/10 rounded-2xl sm:px-10 px-4 border border-destructive sm:h-20 h-fit block sm:flex"} flex`}
     >
       <div
-        className={`${files.length > 1 && isImage ? "h-20 w-20" : "h-30 w-fit"} rounded-lg overflow-hidden flex gap-4 shrink-0 items-center justify-center relative`}
+        className={`${files.length > 1 && isImage ? "h-20 w-20" : "h-30 w-fit"} rounded-lg overflow-hidden flex gap-2 shrink-0 items-center justify-center relative`}
       >
         {item.preview && (
           <>
@@ -64,12 +64,12 @@ export function FilePreview({
                 </button>
               </>
             ) : (
-              <Icon className="sm:h-30 sm:w-30 h-20 w-20 max-w-20 min-w-20 text-ring/50" />
+              <Icon className="h-15 w-15 max-w-15 text-ring/50" />
             )}
             {inputType !== "images" && (
               <>
                 {" "}
-                <h6 className={`truncate sm:w-100 w-40 ${headingSix}`}>
+                <h6 className={`truncate sm:w-45 w-40 ${headingSix}`}>
                   {file.name}
                 </h6>
                 <p className="mt-1 text-sm text-muted-foreground">

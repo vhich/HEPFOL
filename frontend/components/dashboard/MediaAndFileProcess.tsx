@@ -15,10 +15,15 @@ const contentStyles = [
 ];
 const contentLanguages = [
   "English",
+  "Pidgin English",
   "French",
   "Spanish",
   "Portuguese",
   "German",
+  "french",
+  "Hausa",
+  "Igbo",
+  "Yoruba",
 ];
 const CustomizeContent = () => {
   const [contentStyle, setContentStyle] = useState<string>("");
@@ -48,7 +53,7 @@ const CustomizeContent = () => {
   return (
     <div className="w-md max-w-full">
       <p className="text-muted-foreground my-3 text-sm">Customize content</p>
-      <div className="flex sm:flex-row flex-col gap-6">
+      <div className="flex flex-col gap-6">
         {contentSettings.map((setting) => (
           <select
             key={setting.id}

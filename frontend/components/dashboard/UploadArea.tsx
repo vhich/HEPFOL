@@ -118,9 +118,9 @@ export function UploadArea({
                         {files.length} file{files.length !== 1 ? "s" : ""}
                       </span>
                     </div>
-                    <div className="w-full">
+                    <div className="w-full grid sm:grid-cols-[55%_40%] grid-cols-1 gap-4">
                       <div
-                        className={`overflow-y-auto w-full h-fit max-h-[60dvh] border border-border rounded-2xl ${inputType !== "images" ? "grid" : "flex flex-wrap"}`}
+                        className={`overflow-y-auto w-full h-fit max-h-[60dvh] rounded-2xl ${inputType !== "images" ? "grid" : "flex flex-wrap"}`}
                       >
                         {files.map((item) => (
                           <FilePreview
@@ -131,7 +131,7 @@ export function UploadArea({
                         ))}
                       </div>
                       {uploadError?.valid && (
-                        <>
+                        <div>
                           <CustomizeContent />
                           <Button
                             className={
@@ -141,7 +141,7 @@ export function UploadArea({
                             <Sparkles />
                             Generate content
                           </Button>
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
