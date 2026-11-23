@@ -6,52 +6,52 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaTiktok } from "react-icons/fa";
 import { FaThreads, FaXTwitter } from "react-icons/fa6";
 import InnerModal from "./InnerModal";
 
+export const channels: ChannelsTypes[] = [
+  {
+    id: "fb_channel",
+    brand: "facebook",
+    icon: FaFacebook,
+    description: ["page", "group"],
+    icon_bg_color: "bg-blue-600",
+  },
+  {
+    id: "tiktok_channel",
+    brand: "tiktok",
+    icon: FaTiktok,
+    description: ["profile"],
+    icon_bg_color: "bg-slate-200",
+  },
+  {
+    id: "linknd_channel",
+    brand: "linkedin",
+    icon: FaLinkedin,
+    description: ["page", "profile"],
+    icon_bg_color: "bg-blue-500",
+  },
+  {
+    id: "insta_channel",
+    brand: "instagram",
+    icon: FaInstagram,
+    description: ["business", "personal", "creator"],
+    icon_bg_color: "bg-pink-600",
+  },
+  {
+    id: "twitter_channel",
+    brand: "twitter / X",
+    icon: FaXTwitter,
+    description: ["profile"],
+    icon_bg_color: "bg-slate-200",
+  },
+  {
+    id: "thread_channel",
+    brand: "thread",
+    icon: FaThreads,
+    description: ["profile"],
+    icon_bg_color: "bg-slate-200",
+  },
+];
 const NoChannelsCTA = () => {
   const { workFlow, openModal } = useDBcontext();
-  const channels: ChannelsTypes[] = [
-    {
-      id: "fb_channel",
-      brand: "facebook",
-      icon: FaFacebook,
-      description: ["page", "group"],
-      icon_bg_color: "bg-blue-600",
-    },
-    {
-      id: "tiktok_channel",
-      brand: "tiktok",
-      icon: FaTiktok,
-      description: ["profile"],
-      icon_bg_color: "bg-slate-200",
-    },
-    {
-      id: "linknd_channel",
-      brand: "linkedin",
-      icon: FaLinkedin,
-      description: ["page", "profile"],
-      icon_bg_color: "bg-blue-500",
-    },
-    {
-      id: "insta_channel",
-      brand: "instagram",
-      icon: FaInstagram,
-      description: ["business", "personal", "creator"],
-      icon_bg_color: "bg-pink-600",
-    },
-    {
-      id: "twitter_channel",
-      brand: "twitter / X",
-      icon: FaXTwitter,
-      description: ["profile"],
-      icon_bg_color: "bg-slate-200",
-    },
-    {
-      id: "thread_channel",
-      brand: "thread",
-      icon: FaThreads,
-      description: ["profile"],
-      icon_bg_color: "bg-slate-200",
-    },
-  ];
   return (
     <InnerModal
       isHidden={!openModal || !workFlow}
