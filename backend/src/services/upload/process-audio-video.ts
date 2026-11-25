@@ -1,12 +1,6 @@
-import fs from "fs/promises";
-import { removeLocalFiles, sha256File } from "./file-utils";
+import { removeLocalFiles } from "./file-utils";
 import { updateUploadJob } from "./job-store";
 import { extractAudio, inspectDuration } from "./media-tools";
-import {
-  createStoragePath,
-  findDuplicateProject,
-  removeFromStorage,
-} from "./storage";
 import type { UploadInput } from "./types";
 
 export async function processAudioVideo(
@@ -30,36 +24,48 @@ export async function processAudioVideo(
 
     await extractAudio(input.tempUploadPath, outputAudioPath, durationSeconds);
 
-    updateUploadJob(jobId, {
-      status: "hashing",
-      progressMessage: "Generating media hash.",
-    });
+    // updateUploadJob(jobId, {
+    //   status: "hashing",
+    //   progressMessage: "Generating media hash.",
+    // });
 
-    const mediaHash = await sha256File(outputAudioPath);
-    const existingProject = await findDuplicateProject(input.userId, mediaHash);
+    // const mediaHash = await sha256File(outputAudioPath);
+    // const existingProject = await findDuplicateProjectAsset(
+    //   input.userId,
+    //   mediaHash,
+    // );
 
-    if (existingProject) {
-      updateUploadJob(jobId, {
-        status: "completed",
-        progressMessage: "Duplicate media detected.",
-        result: {
-          projectId: existingProject.id,
-          duplicate: true,
-          durationSeconds,
-          title: input.originalFilename,
-        },
-      });
-      return;
-    }
+    // if (existingProject) {
+    //   updateUploadJob(jobId, {
+    //     status: "completed",
+    //     progressMessage: "Duplicate media detected.",
+    //     result: {
+    //       projectAssetId: existingProject.id,
+    //       duplicate: true,
+    //       durationSeconds,
+    //       title: input.originalFilename,
+    //     },
+    //   });
+    //   return;
+    // }
 
-    const audioBuffer = await fs.readFile(outputAudioPath);
-    const storagePath = createStoragePath(input.userId, ".mp3");
+    // const audioBuffer = await fs.readFile(outputAudioPath);
+    // const storagePath = createStoragePath(input.userId, ".mp3");
 
     // await uploadToStorage(storagePath, audioBuffer, "audio/mpeg");
 
     try {
-      // const projectId = await createProject({
-      //   userId: input.userId,
+      // await createProject({ status: "uploaded", userId: input.userId });
+      // const { data: project, error: projectError } = await supabase
+      //   .from("projects")
+      //   .select("id")
+      //   .eq("user_id", input.userId)
+      //   .single();
+
+      // if (projectError) throw projectError;
+
+      // const projectAssetId = await createProjectAsset({
+      //   projectId: project.id,
       //   mediaHash,
       //   storagePath,
       // });
@@ -68,6 +74,7 @@ export async function processAudioVideo(
         status: "completed",
         progressMessage: "Upload complete.",
         result: {
+          // projectAssetId,
           duplicate: false,
           durationSeconds,
           title: input.originalFilename,
@@ -75,7 +82,7 @@ export async function processAudioVideo(
       });
     } catch (error) {
       // Roll back the storage object if the DB transaction cannot be completed.
-      await removeFromStorage(storagePath).catch(() => {});
+      // await removeFromStorage(storagePath).catch(() => {});
       throw error;
     }
   } finally {

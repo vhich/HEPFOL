@@ -10,19 +10,36 @@ export function createStoragePath(userId: string, extension: string): string {
   return `uploads/${userId}/${randomName}${extension}`;
 }
 
-export async function findDuplicateProject(
-  userId: string,
+export async function findDuplicateProjectAsset(
+  projectId: string,
   mediaHash: string,
 ) {
   const { data, error } = await supabase
-    .from("projects")
+    .from("project_assets")
     .select("id")
     .eq("media_hash", mediaHash)
-    .eq("user_id", userId)
+    .eq("project_id", projectId)
     .maybeSingle();
 
   if (error) throw error;
   return data;
+}
+
+export async function createProject(params: {
+  userId: string;
+  status?: string;
+}): Promise<string> {
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      user_id: params.userId,
+      status: params.status ?? "processing",
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return data.id;
 }
 
 export async function uploadToStorage(
@@ -41,18 +58,17 @@ export async function uploadToStorage(
   if (error) throw error;
 }
 
-export async function createProject(params: {
-  userId: string;
+export async function createProjectAsset(params: {
+  projectId: string;
   mediaHash: string;
   storagePath: string;
 }): Promise<string> {
   const { data, error } = await supabase
-    .from("projects")
+    .from("project_assets")
     .insert({
-      user_id: params.userId,
+      project_id: params.projectId,
       media_hash: params.mediaHash,
       source_url: params.storagePath,
-      status: "uploaded",
     })
     .select("id")
     .single();

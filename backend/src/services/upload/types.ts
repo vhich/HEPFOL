@@ -10,7 +10,7 @@ export type UploadJobStatus =
   | "failed";
 
 export type UploadResult = {
-  projectId?: string;
+  projectAssetId?: string;
   duplicate: boolean;
   durationSeconds: number;
   title: string;

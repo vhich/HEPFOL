@@ -2,10 +2,12 @@ import { InputType, MediaFile } from "@/lib/dashboard_types";
 import { useDBcontext } from "@/providers/dashboardProvider";
 import { useUploadContext } from "@/providers/uploadFileProvider";
 import { InfoIcon, Plus, Sparkles } from "lucide-react";
-import { ChangeEvent, DragEvent } from "react";
+import { ChangeEvent, DragEvent, useState } from "react";
 import { Button } from "../ui/button";
 import { FilePreview } from "./FIlePreview";
 import CustomizeContent from "./MediaAndFileProcess";
+import { channels } from "./NoChannelsCTA";
+import { RadioGroupChoiceCard } from "./RadioGroupChoiceCard";
 import UploadProcess from "./UploadProcess";
 
 export function UploadArea({
@@ -39,6 +41,7 @@ export function UploadArea({
 
   const { uploadError, inputType } = useDBcontext();
   const { isBusy, notBusy } = useUploadContext();
+  const [channel, setChannel] = useState("");
   const isManyFilesError =
     uploadError?.error?.toLowerCase() === "too many files";
   return (
@@ -132,10 +135,25 @@ export function UploadArea({
                       </div>
                       {uploadError?.valid && (
                         <div>
+                          <div className="space-y-2">
+                            <p className={`text-sm text-muted-foreground`}>
+                              Select Channel(s)
+                            </p>
+                            <div className="grid grid-cols-2 items-center gap-1.5">
+                              {channels.map((chan) => (
+                                <RadioGroupChoiceCard
+                                  key={chan.id}
+                                  value={chan.brand}
+                                  setValue={() => setChannel(chan.brand)}
+                                  selectedValue={channel}
+                                />
+                              ))}
+                            </div>
+                          </div>
                           <CustomizeContent />
                           <Button
                             className={
-                              "sm:py-6 sm:px-5 py-7 tracking-wider my-10 w-md max-w-full"
+                              "sm:py-6 sm:px-5 py-7 tracking-wider my-6 w-md max-w-full"
                             }
                           >
                             <Sparkles />

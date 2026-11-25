@@ -31,6 +31,7 @@ const ALLOWED_TYPES = new Map<string, string>([
 
   [".pdf", "application/pdf"],
 ]);
+export const FILE_UPLOAD_LIMIT = 10;
 
 function getSafeExtension(filename: string): string | null {
   const ext = path.extname(filename).toLowerCase();
@@ -148,6 +149,11 @@ export async function uploadRoutes(server: FastifyInstance) {
               success: false,
               error: "Upload non-image files individually.",
             });
+          } else if (files.length > 10) {
+            return reply.code(400).send({
+              success: false,
+              message: `Cannot upload more than ${FILE_UPLOAD_LIMIT} images`,
+            });
           }
         }
 
@@ -158,7 +164,9 @@ export async function uploadRoutes(server: FastifyInstance) {
          * Do NOT create one job and overwrite its input for every file.
          */
         const jobs = [];
-
+        function projectId(): string {
+          return crypto.randomBytes(16).toString("hex");
+        }
         for (const file of files) {
           const jobId = createUploadJob({
             userId: user.id,
@@ -184,7 +192,7 @@ export async function uploadRoutes(server: FastifyInstance) {
           success: true,
           count: jobs.length,
           jobs,
-          status: "queued",
+          status: "uploaded",
         });
       } catch (error) {
         console.error("Upload failed:", error);

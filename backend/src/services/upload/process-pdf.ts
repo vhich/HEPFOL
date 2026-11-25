@@ -1,14 +1,7 @@
 // process-pdf.ts
 
-import fs from "fs/promises";
-import { sha256File } from "./file-utils";
 import { updateUploadJob } from "./job-store";
 import { getPdfPageCount } from "./pdf-tools";
-import {
-  createStoragePath,
-  findDuplicateProject,
-  removeFromStorage,
-} from "./storage";
 import type { UploadInput } from "./types";
 
 export async function processPdf(
@@ -20,36 +13,48 @@ export async function processPdf(
     progressMessage: "Checking PDF.",
   });
 
-  const pageCount = await getPdfPageCount(input.tempUploadPath);
+  await getPdfPageCount(input.tempUploadPath);
 
-  const mediaHash = await sha256File(input.tempUploadPath);
+  // const mediaHash = await sha256File(input.tempUploadPath);
 
-  const existingProject = await findDuplicateProject(input.userId, mediaHash);
+  // const existingProject = await findDuplicateProjectAsset(
+  //   input.userId,
+  //   mediaHash,
+  // );
 
-  if (existingProject) {
-    updateUploadJob(jobId, {
-      status: "completed",
-      progressMessage: "Duplicate PDF detected.",
-      result: {
-        projectId: existingProject.id,
-        duplicate: true,
-        durationSeconds: 0,
-        title: input.originalFilename,
-      },
-    });
+  // if (existingProject) {
+  //   updateUploadJob(jobId, {
+  //     status: "completed",
+  //     progressMessage: "Duplicate PDF detected.",
+  //     result: {
+  //       projectAssetId: existingProject.id,
+  //       duplicate: true,
+  //       durationSeconds: 0,
+  //       title: input.originalFilename,
+  //     },
+  //   });
 
-    return;
-  }
+  //   return;
+  // }
 
-  const pdfBuffer = await fs.readFile(input.tempUploadPath);
+  // const pdfBuffer = await fs.readFile(input.tempUploadPath);
 
-  const storagePath = createStoragePath(input.userId, input.extension);
+  // const storagePath = createStoragePath(input.userId, input.extension);
 
   // await uploadToStorage(storagePath, pdfBuffer, input.mimetype);
 
   try {
-    // const projectId = await createProject({
-    //   userId: input.userId,
+    // await createProject({ status: "uploaded", userId: input.userId });
+    // const { data: project, error: projectError } = await supabase
+    //   .from("projects")
+    //   .select("id")
+    //   .eq("user_id", input.userId)
+    //   .single();
+
+    // if (projectError) throw projectError;
+
+    // const projectAssetId = await createProjectAsset({
+    //   projectId: project.id,
     //   mediaHash,
     //   storagePath,
     // });
@@ -58,13 +63,14 @@ export async function processPdf(
       status: "completed",
       progressMessage: "PDF uploaded successfully.",
       result: {
+        // projectAssetId,
         duplicate: false,
         durationSeconds: 0,
         title: input.originalFilename,
       },
     });
   } catch (error) {
-    await removeFromStorage(storagePath).catch(() => {});
+    // await removeFromStorage(storagePath).catch(() => {});
     throw error;
   }
 }

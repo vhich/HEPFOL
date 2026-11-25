@@ -4,7 +4,7 @@ import { useUpload } from "@/hooks/use-upload";
 import { Info, LoaderCircle, X } from "lucide-react";
 
 export default function UploadProcess() {
-  const { state, progressMessage, error, job, reset } = useUpload();
+  const { state, error, job, reset } = useUpload();
 
   const isBusy =
     state === "uploading" ||
@@ -97,8 +97,8 @@ function getStateDescription(state: string): string {
     case "converting":
       return "Extracting the audio from your media.";
 
-    case "hashing":
-      return "Checking the media for duplicates.";
+    // case "hashing":
+    //   return "Checking the media for duplicates.";
 
     default:
       return "Please wait...";
