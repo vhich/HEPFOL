@@ -1,6 +1,10 @@
 import { useDBcontext } from "@/providers/dashboardProvider";
 import { useUploadContext } from "@/providers/uploadFileProvider";
-import { childModeWrapper, headingFour } from "@/utils/general_styles";
+import {
+  childModeWrapper,
+  headingFour,
+  scrollBarThin,
+} from "@/utils/general_styles";
 import { cn } from "cn";
 import { X } from "lucide-react";
 import { ReactNode } from "react";
@@ -21,7 +25,8 @@ const InnerModal = ({
   className,
   children,
 }: InnerModalTypes) => {
-  const { setOpenModal, setWorkFlow, removeFileandUrl } = useDBcontext();
+  const { setOpenModal, setWorkFlow, removeFileandUrl, isGenerated } =
+    useDBcontext();
   const { setState, setError, setProgressMessage } = useUploadContext();
   return (
     <div
@@ -30,6 +35,7 @@ const InnerModal = ({
       className={cn(
         "mx-auto h-full pb-3 modal-entry overflow-auto",
         childModeWrapper,
+        scrollBarThin,
         className,
       )}
     >
@@ -55,7 +61,10 @@ const InnerModal = ({
           <X />{" "}
         </Button>
       </div>
-      <h4 className={cn("text-center mb-4", headingFour)}>{title}</h4>
+      {!isGenerated && (
+        <h4 className={cn("text-center mb-4", headingFour)}>{title}</h4>
+      )}
+
       {children}
     </div>
   );

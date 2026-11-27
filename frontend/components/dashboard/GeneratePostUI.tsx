@@ -10,8 +10,10 @@ import { cn } from "cn";
 import { ChangeEvent, DragEvent, useRef } from "react";
 
 import { useUpload } from "@/hooks/use-upload";
+import { MOCK_GENERATION_RESULT } from "@/lib/generated_post_types";
 import { useUploadContext } from "@/providers/uploadFileProvider";
 import { validateFiles } from "@/utils/validate_file_upload";
+import { GeneratedContent } from "./generated-posts/GeneratedContent";
 import InnerModal from "./InnerModal";
 import UploadTabs from "./UploadTabs";
 
@@ -27,6 +29,7 @@ const GeneratePostUI = () => {
     removeFileandUrl,
     setUploadError,
     uploadError,
+    isGenerated,
   } = useDBcontext();
 
   const { upload } = useUpload();
@@ -222,32 +225,43 @@ const GeneratePostUI = () => {
       accept_file: `PDF only • ${FILE_LIMITS.sizeMB}mb`,
     },
   ];
+  const posts = Object.values(MOCK_GENERATION_RESULT.channels);
   return (
     <InnerModal
       title="Generate a post"
       roleDescription="paste a youtube link or upload a media or file, which will be transcribe to text"
       isHidden={!openModal || !workFlow}
-      className={cn("lg:min-w-200 md:min-w-150 w-full")}
+      className={cn(
+        "lg:min-w-200 md:min-w-150 sm:w-[95dvw] w-full",
+        isGenerated &&
+          "flex sm:h-[90vh] h-full sm:max-h-[80vh] sm:max-w-6xl mx-auto flex-col overflow-hidden",
+      )}
     >
-      <div className="max-w-2xl mx-auto sm:p-0 p-3">
-        {notBusy && (
-          <div className="my-10 flex sm:gap-0 gap-2 items-center justify-center max-w-lg mx-auto">
-            <Step number="1" label="Add Media / URL" />
-            <StepConnector />
-            <Step number="2" label="Customize" />
-            <StepConnector />
-            <Step number="3" label="Generate" />
+      {isGenerated ? (
+        <GeneratedContent posts={posts} />
+      ) : (
+        <>
+          <div className="max-w-2xl mx-auto sm:p-0 p-3">
+            {notBusy && (
+              <div className="my-10 flex sm:gap-0 gap-2 items-center justify-center max-w-lg mx-auto">
+                <Step number="1" label="Add Media / URL" />
+                <StepConnector />
+                <Step number="2" label="Customize" />
+                <StepConnector />
+                <Step number="3" label="Generate" />
+              </div>
+            )}
+            {files.length === 0 && state === "idle" && <UploadTabs />}
+
+            {inputTypeUI.find((input) => input.id === inputType)?.userInterface}
+            <p className="mt-4 text-center text-xs text-slate-400">
+              {files.length === 0 &&
+                inputTypeUI.find((input) => input.id === inputType)
+                  ?.accept_file}
+            </p>
           </div>
-        )}
-
-        {files.length === 0 && state === "idle" && <UploadTabs />}
-
-        {inputTypeUI.find((input) => input.id === inputType)?.userInterface}
-        <p className="mt-4 text-center text-xs text-slate-400">
-          {files.length === 0 &&
-            inputTypeUI.find((input) => input.id === inputType)?.accept_file}
-        </p>
-      </div>
+        </>
+      )}
     </InnerModal>
   );
 };

@@ -44,7 +44,7 @@ export const channels: ChannelsTypes[] = [
   },
   {
     id: "thread_channel",
-    brand: "thread",
+    brand: "threads",
     icon: FaThreads,
     description: ["profile"],
     icon_bg_color: "bg-slate-200",

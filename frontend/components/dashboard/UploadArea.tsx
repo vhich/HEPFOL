@@ -39,11 +39,14 @@ export function UploadArea({
 }) {
   const isImages = type === "images";
 
-  const { uploadError, inputType } = useDBcontext();
+  const { uploadError, inputType, setIsGenerated } = useDBcontext();
   const { isBusy, notBusy } = useUploadContext();
   const [channel, setChannel] = useState("");
   const isManyFilesError =
     uploadError?.error?.toLowerCase() === "too many files";
+  function displayGeneratedContent() {
+    setIsGenerated(true);
+  }
   return (
     <>
       {isBusy ? (
@@ -152,6 +155,7 @@ export function UploadArea({
                           </div>
                           <CustomizeContent />
                           <Button
+                            onClick={() => displayGeneratedContent()}
                             className={
                               "sm:py-6 sm:px-5 py-7 tracking-wider my-6 w-md max-w-full"
                             }

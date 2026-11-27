@@ -36,6 +36,7 @@ interface DashboardContextType {
   setUploadResult: Dispatch<SetStateAction<UploadResultTypes | null>>; //Response from server
   setUploadError: Dispatch<SetStateAction<FileValidationResult | undefined>>; //CLient side upload error response
   setSteps: Dispatch<SetStateAction<number[]>>;
+  setIsGenerated: Dispatch<SetStateAction<boolean>>;
   uploadError: FileValidationResult | undefined;
   user: UserType;
   openModal: boolean;
@@ -51,6 +52,7 @@ interface DashboardContextType {
   attempts: number;
   steps: number[];
   uploadResult: UploadResultTypes | null;
+  isGenerated: boolean;
   serverUrl: string;
   removeFileandUrl: () => void;
 }
@@ -73,6 +75,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [uploadResult, setUploadResult] = useState<UploadResultTypes | null>(
     null,
   );
+  const [isGenerated, setIsGenerated] = useState<boolean>(true);
   const [steps, setSteps] = useState<number[]>([1]);
   const [user, setUser] = useState<UserType>({
     avatar_url: "",
@@ -133,6 +136,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     setUrl("");
     setInputType(inputType);
     setSteps([1]);
+    setIsGenerated(false);
   }
   const serverUrl = process.env.SERVER_BASE_URL || "http://localhost:4000";
   return (
@@ -153,6 +157,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         setUploadError,
         setFiles,
         setSteps,
+        setIsGenerated,
         steps,
         user,
         openModal,
@@ -167,6 +172,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         processingStatus,
         attempts,
         uploadResult,
+        isGenerated,
         uploadError,
         serverUrl,
         removeFileandUrl,

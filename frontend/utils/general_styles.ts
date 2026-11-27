@@ -12,3 +12,5 @@ export const headingSix: string = `${headerText} sm:text-xl text-2xl font-medium
 export const descriptionText: string =
   "text-muted-foreground text-sm tracking-wider";
 export const fadedText: string = "text-muted-foreground tracking-wider";
+export const scrollBarThin =
+  "scrollbar-thin scrollbar-thumb-muted/50 hover:scrollbar-thumb-muted/80 scrollbar-track-transparent";

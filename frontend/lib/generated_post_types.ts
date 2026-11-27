@@ -16,7 +16,7 @@ export interface MockConnectedChannel {
   status: "connected" | "expired" | "disconnected";
   postproxy_profile_id: string;
 }
-
+export type PostFormat = "post" | "reel" | "story";
 export interface GeneratedChannelPost {
   id: string;
   platform: SocialPlatform;
@@ -27,7 +27,9 @@ export interface GeneratedChannelPost {
   threadItems?: string[]; // Useful if rendering X / Threads as multi-part posts
   characterCount: number;
   maxCharacters: number;
-  mediaIncluded: boolean;
+  format?: PostFormat; // defaults to "post"
+  mediaIncluded?: boolean;
+  mediaUrls?: string[];
   status: "draft" | "scheduled" | "published" | "failed";
 }
 

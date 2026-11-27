@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
+import { scrollBarThin } from "@/utils/general_styles";
 import type { Metadata } from "next";
 import {
   Fredoka,
@@ -57,7 +58,7 @@ export default function RootLayout({
         jetbrainsMonoHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">
+      <body className={cn("min-h-full flex flex-col", scrollBarThin)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
